@@ -9,16 +9,28 @@ function Chat() {
   useEffect(() => {
     const fetchConversations = async () => {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      console.log("📌 当前 token:", token);
+
+      if (!token) {
+        // 没有 token → 不调后端，保持空数组
+        setConversations([]);
+        return;
+      }
 
       try {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {}; // ✅ 没 token 就不要传
+
         const res = await fetch("http://localhost:3001/chat/conversation", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers,
         });
         const data = await res.json();
-        setConversations(data);
+        console.log("Fetched data:", data);
+
+        if (Array.isArray(data)) {
+          setConversations(data);
+        } else {
+          setConversations([]); // 避免 data.message 报错
+        }
       } catch (err) {
         console.error(err);
       }
@@ -31,23 +43,24 @@ function Chat() {
   const handleSend = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
 
     try {
       setLoading(true); // 开始加载
+      const headers = token
+        ? {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          }
+        : { "Content-Type": "application/json" };
+
       const res = await fetch("http://localhost:3001/chat/conversation", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({ prompt }),
       });
 
       const newConv = await res.json();
+
       setConversations([newConv, ...conversations]);
       setPrompt("");
     } catch (err) {
@@ -77,24 +90,25 @@ function Chat() {
       {loading && <p>🤖 Bot is typing...</p>}
 
       <div style={{ marginTop: "20px" }}>
-        {conversations.map((c) => (
-          <div
-            key={c.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "6px",
-              padding: "10px",
-              marginBottom: "10px",
-            }}
-          >
-            <p>
-              <strong>You:</strong> {c.prompt}
-            </p>
-            <p>
-              <strong>Bot:</strong> {c.response}
-            </p>
-          </div>
-        ))}
+        {Array.isArray(conversations) &&
+          conversations.map((c) => (
+            <div
+              key={c.id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "6px",
+                padding: "10px",
+                marginBottom: "10px",
+              }}
+            >
+              <p>
+                <strong>You:</strong> {c.prompt}
+              </p>
+              <p>
+                <strong>Bot:</strong> {c.response}
+              </p>
+            </div>
+          ))}
       </div>
     </div>
   );

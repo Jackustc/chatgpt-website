@@ -59,7 +59,13 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1h" } // 1小时有效
     );
 
-    res.json({ message: "Login successful", token });
+    res.json({
+      message: "Login successful",
+      token,
+      role: user.role,
+      userId: user.id,
+      username: user.username,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

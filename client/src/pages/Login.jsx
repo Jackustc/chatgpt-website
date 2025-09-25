@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import "../styles/Login.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function Login() {
+function Login({ setIsLoggedIn }) {
+  // 从父组件接收 setIsLoggedIn
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +27,18 @@ function Login() {
       if (res.ok) {
         // 登录成功，保存 token
         localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
+        localStorage.setItem("userId", data.userId);
+
+        // ✅ 更新 App.js 的状态，这样 NavBar 会立刻显示 Logout
+        setIsLoggedIn(true);
+
         setMessage("✅ Login successful!");
+
+        navigate("/");
+
+        // ✅ 或者强制刷新，让 Nav 马上更新
+        // window.location.href = "/";
       } else {
         setMessage(data.message || "❌ Login failed");
       }
