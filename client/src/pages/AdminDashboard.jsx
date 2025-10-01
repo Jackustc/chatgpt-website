@@ -6,7 +6,7 @@ function AdminDashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("http://localhost:3001/chat/conversation/all", {
+    fetch(`${import.meta.env.VITE_API_URL}/chat/conversation/all`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -16,7 +16,7 @@ function AdminDashboard() {
 
   const handleDownload = () => {
     const token = localStorage.getItem("token");
-    fetch("http://localhost:3001/chat/conversation/all/csv", {
+    fetch(`${import.meta.env.VITE_API_URL}/chat/conversation/all/csv`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.blob())

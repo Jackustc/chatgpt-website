@@ -16,9 +16,12 @@ function Chat() {
 
       try {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const res = await fetch("http://localhost:3001/chat/conversation", {
-          headers,
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/chat/conversation`,
+          {
+            headers,
+          }
+        );
         const data = await res.json();
         if (Array.isArray(data)) {
           setConversations(data);
@@ -47,11 +50,14 @@ function Chat() {
           }
         : { "Content-Type": "application/json" };
 
-      const res = await fetch("http://localhost:3001/chat/conversation", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ prompt }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/chat/conversation`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ prompt }),
+        }
+      );
 
       const newConv = await res.json();
       setConversations([newConv, ...conversations]);
