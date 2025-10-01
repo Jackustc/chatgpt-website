@@ -16,15 +16,33 @@ function NavBar({ isLoggedIn, setIsLoggedIn }) {
       style={{
         display: "flex",
         justifyContent: "space-between",
-        padding: "10px 20px",
-        borderBottom: "1px solid #ddd",
+        padding: "10px 30px",
+        // borderBottom: "1px solid #ddd",
         alignItems: "center",
       }}
     >
-      <Link to="/" style={{ textDecoration: "none", color: "black" }}>
+      {/* <Link to="/" style={{ textDecoration: "none", color: "black" }}>
         <h2 style={{ margin: 0 }}>Interact with ChatGPT</h2>
+      </Link> */}
+      <Link to="/" style={{ textDecoration: "none", color: "black" }}>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "2rem",
+            fontWeight: "bold",
+            marginTop: "1rem ",
+          }}
+        >
+          Interact with ChatGPT
+        </h1>
       </Link>
-      <div>
+
+      <div
+        style={{
+          margin: 0,
+          marginTop: "1rem ",
+        }}
+      >
         {isLoggedIn ? (
           <>
             {/* ✅ 只有管理员能看到 Admin */}

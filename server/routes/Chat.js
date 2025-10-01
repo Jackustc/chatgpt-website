@@ -3,6 +3,7 @@ const Conversation = require("../models/Conversation");
 const authMiddleware = require("../utils/authMiddleware");
 
 const jwt = require("jsonwebtoken");
+const { Parser } = require("json2csv");
 
 const { OpenAI } = require("openai");
 
@@ -120,6 +121,46 @@ router.get("/conversation/all", authMiddleware, async (req, res) => {
     }));
 
     res.json(formatted);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// 下载所有对话 CSV（管理员专用）
+router.get("/conversation/all/csv", authMiddleware, async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden: admin only" });
+    }
+
+    const conversations = await Conversation.findAll({
+      include: [
+        {
+          model: require("../models/User"),
+          attributes: ["username", "email"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    const formatted = conversations.map((c) => ({
+      id: c.id,
+      username: c.User ? c.User.username : "Visitor",
+      email: c.User ? c.User.email : "",
+      prompt: c.prompt,
+      response: c.response,
+      createdAt: c.createdAt,
+    }));
+
+    const parser = new Parser({
+      fields: ["id", "username", "email", "prompt", "response", "createdAt"],
+    });
+    const csv = parser.parse(formatted);
+
+    res.header("Content-Type", "text/csv");
+    res.attachment("conversations.csv");
+    return res.send(csv);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

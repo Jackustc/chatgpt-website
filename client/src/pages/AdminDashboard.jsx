@@ -14,9 +14,50 @@ function AdminDashboard() {
       .catch((err) => console.error(err));
   }, []);
 
+  const handleDownload = () => {
+    const token = localStorage.getItem("token");
+    fetch("http://localhost:3001/chat/conversation/all/csv", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "conversations.csv");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch((err) => console.error(err));
+  };
+
   return (
     <div style={{ maxWidth: "900px", margin: "50px auto" }}>
-      <h2>All Conversations (Admin)</h2>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "1rem",
+        }}
+      >
+        <h2 style={{ margin: 0 }}>All Conversations (Admin)</h2>
+        <button
+          onClick={handleDownload}
+          style={{
+            cursor: "pointer",
+            padding: "6px 12px",
+            // backgroundColor: "#007bff",
+            // color: "white",
+            // border: "none",
+            // borderRadius: "4px",
+          }}
+        >
+          Download CSV
+        </button>
+      </div>
+
       <table
         border="1"
         cellPadding="6"
