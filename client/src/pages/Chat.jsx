@@ -4,6 +4,7 @@ function Chat() {
   const [prompt, setPrompt] = useState("");
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
 
   // 获取历史对话
   useEffect(() => {
@@ -55,11 +56,17 @@ function Chat() {
         {
           method: "POST",
           headers,
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt, sessionId }),
         }
       );
 
       const newConv = await res.json();
+
+      // ✅ 如果是本页第一次发消息，后端会回 sessionId，保存到内存
+      if (!sessionId && newConv.sessionId) {
+        setSessionId(newConv.sessionId);
+      }
+
       setConversations([newConv, ...conversations]);
       setPrompt("");
     } catch (err) {
@@ -122,9 +129,9 @@ function Chat() {
       {loading && <p>🤖 Bot is typing...</p>}
       <div style={{ marginTop: "20px" }}>
         {Array.isArray(conversations) &&
-          conversations.map((c) => (
+          conversations.map((c, index) => (
             <div
-              key={c.id}
+              key={`${c.sessionId || "temp"}-${c.id || index}`}
               style={{
                 // border: "1px solid #ddd",
                 // borderRadius: "6px",

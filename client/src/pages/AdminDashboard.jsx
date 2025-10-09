@@ -66,6 +66,7 @@ function AdminDashboard() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Session</th>
             <th>User</th>
             <th>Prompt</th>
             <th>Response</th>
@@ -73,15 +74,36 @@ function AdminDashboard() {
           </tr>
         </thead>
         <tbody>
-          {conversations.map((c) => (
-            <tr key={c.id}>
-              <td>{c.id}</td>
-              <td>{c.user.username}</td>
-              <td>{c.prompt}</td>
-              <td>{c.response}</td>
-              <td>{new Date(c.createdAt).toLocaleString()}</td>
-            </tr>
-          ))}
+          {conversations.reduce((acc, c, idx, arr) => {
+            const prev = arr[idx - 1];
+            const isNewSession = !prev || prev.sessionId !== c.sessionId;
+
+            if (isNewSession) {
+              acc.push(
+                <tr
+                  key={`session-${c.sessionId}`}
+                  style={{ background: "#f0f0f0" }}
+                >
+                  <td colSpan="6" style={{ fontWeight: "bold" }}>
+                    Session: {c.sessionId.slice(0, 8)}
+                  </td>
+                </tr>
+              );
+            }
+
+            acc.push(
+              <tr key={c.id}>
+                <td>{c.id}</td>
+                <td>{c.sessionId.slice(0, 8)}</td>
+                <td>{c.user.username}</td>
+                <td>{c.prompt}</td>
+                <td>{c.response}</td>
+                <td>{new Date(c.createdAt).toLocaleString()}</td>
+              </tr>
+            );
+
+            return acc;
+          }, [])}
         </tbody>
       </table>
     </div>
