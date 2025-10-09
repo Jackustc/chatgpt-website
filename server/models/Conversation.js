@@ -7,7 +7,7 @@ const Conversation = sequelize.define(
   {
     sessionId: {
       type: DataTypes.STRING,
-      allowNull: false, // ✅ 关键：任何对话都必须属于一个会话
+      allowNull: true, // ✅ 关键：任何对话都必须属于一个会话
     },
     prompt: { type: DataTypes.TEXT, allowNull: false },
     response: { type: DataTypes.TEXT, allowNull: false },
