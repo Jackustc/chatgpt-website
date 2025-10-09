@@ -19,13 +19,6 @@ const Conversation = sequelize.define(
     indexes: [{ fields: ["sessionId"] }, { fields: ["userId"] }],
   }
 );
-// ✅ 在插入前自动补 sessionId（防止 defaultValue 没触发）
-Conversation.beforeCreate((conv) => {
-  if (!conv.sessionId || conv.sessionId === "pending") {
-    const { v4: uuidv4 } = require("uuid");
-    conv.sessionId = uuidv4();
-  }
-});
 
 Conversation.belongsTo(User, {
   foreignKey: {
@@ -34,6 +27,14 @@ Conversation.belongsTo(User, {
   },
   onDelete: "SET NULL",
   onUpdate: "CASCADE",
+});
+
+// ✅ 在插入前自动补 sessionId（防止 defaultValue 没触发）
+Conversation.beforeCreate((conv) => {
+  if (!conv.sessionId || conv.sessionId === "pending") {
+    const { v4: uuidv4 } = require("uuid");
+    conv.sessionId = uuidv4();
+  }
 });
 
 module.exports = Conversation;

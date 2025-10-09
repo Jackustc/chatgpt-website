@@ -39,6 +39,7 @@ router.post("/conversation", async (req, res) => {
       typeof clientSessionId === "string" && clientSessionId.length <= 128
         ? clientSessionId
         : uuidv4();
+    console.log("🧩 Using sessionId:", sessionId);
 
     // 调用 OpenAI
     const completion = await openai.chat.completions.create({
