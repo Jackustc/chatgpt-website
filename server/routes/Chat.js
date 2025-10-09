@@ -48,6 +48,8 @@ router.post("/conversation", async (req, res) => {
     const response = completion.choices[0].message.content;
 
     // 存数据库（无论是否登录，均写入 sessionId）
+    console.log("🧩 Saving conversation with sessionId:", sessionId);
+
     const newConv = await Conversation.create({
       userId,
       sessionId,
