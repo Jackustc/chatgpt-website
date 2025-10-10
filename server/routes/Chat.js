@@ -43,7 +43,7 @@ router.post("/conversation", async (req, res) => {
 
     // 调用 OpenAI
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
     });
     const response = completion.choices[0].message.content;
