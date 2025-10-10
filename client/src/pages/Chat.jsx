@@ -4,32 +4,30 @@ function Chat() {
   const [prompt, setPrompt] = useState("");
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
 
   // 获取历史对话
   useEffect(() => {
     const fetchConversations = async () => {
       const token = localStorage.getItem("token");
-      console.log("📌 当前 token:", token);
-
       if (!token) {
-        // 没有 token → 不调后端，保持空数组
         setConversations([]);
         return;
       }
 
       try {
-        const headers = token ? { Authorization: `Bearer ${token}` } : {}; // ✅ 没 token 就不要传
-
-        const res = await fetch("http://localhost:3001/chat/conversation", {
-          headers,
-        });
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/chat/conversation`,
+          {
+            headers,
+          }
+        );
         const data = await res.json();
-        console.log("Fetched data:", data);
-
         if (Array.isArray(data)) {
           setConversations(data);
         } else {
-          setConversations([]); // 避免 data.message 报错
+          setConversations([]);
         }
       } catch (err) {
         console.error(err);
@@ -45,7 +43,7 @@ function Chat() {
     const token = localStorage.getItem("token");
 
     try {
-      setLoading(true); // 开始加载
+      setLoading(true);
       const headers = token
         ? {
             "Content-Type": "application/json",
@@ -53,50 +51,90 @@ function Chat() {
           }
         : { "Content-Type": "application/json" };
 
-      const res = await fetch("http://localhost:3001/chat/conversation", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ prompt }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/chat/conversation`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ prompt, sessionId }),
+        }
+      );
 
       const newConv = await res.json();
+
+      // ✅ 如果是本页第一次发消息，后端会回 sessionId，保存到内存
+      if (!sessionId && newConv.sessionId) {
+        setSessionId(newConv.sessionId);
+      }
 
       setConversations([newConv, ...conversations]);
       setPrompt("");
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false); // 加载结束
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "50px auto" }}>
-      {/* <h2>Chat</h2> */}
-      <form onSubmit={handleSend}>
-        <input
-          type="text"
+    <div
+      style={{
+        width: "100%", // ✅ 占满全屏
+        margin: "10px 0",
+        padding: "0 30px", // ✅ 给左右各留 40px 空间
+        boxSizing: "border-box",
+      }}
+    >
+      <form onSubmit={handleSend} style={{ textAlign: "left" }}>
+        <label
+          htmlFor="prompt"
+          style={{ display: "block", fontSize: "1.2rem", marginBottom: "10px" }}
+        >
+          Enter your prompt:
+        </label>
+
+        <textarea
+          id="prompt"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Type your message..."
+          placeholder="Ask anything..."
           required
-          style={{ width: "80%", padding: "10px" }}
+          style={{
+            width: "100%", // ✅ 永远占满容器
+            minHeight: "150px", // ✅ 高度更明显
+            fontSize: "1rem",
+            padding: "10px",
+            marginBottom: "20px",
+            // border: "1px solid #ccc",
+            // borderRadius: "4px",
+            boxSizing: "border-box", // ✅ 防止 padding 挤压
+          }}
         />
-        <button type="submit" style={{ padding: "10px 15px" }}>
-          Send
+
+        <button
+          type="submit"
+          style={{
+            backgroundColor: "#007bff",
+            color: "white",
+            padding: "10px 20px",
+            border: "none",
+            // borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "1rem",
+          }}
+        >
+          Submit
         </button>
       </form>
-
       {loading && <p>🤖 Bot is typing...</p>}
-
       <div style={{ marginTop: "20px" }}>
         {Array.isArray(conversations) &&
-          conversations.map((c) => (
+          conversations.map((c, index) => (
             <div
-              key={c.id}
+              key={`${c.sessionId || "temp"}-${c.id || index}`}
               style={{
-                border: "1px solid #ddd",
-                borderRadius: "6px",
+                // border: "1px solid #ddd",
+                // borderRadius: "6px",
                 padding: "10px",
                 marginBottom: "10px",
               }}

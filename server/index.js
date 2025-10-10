@@ -24,7 +24,7 @@ const Conversation = require("./models/Conversation");
 
 // 同步模型到数据库（谨慎使用 { force: true }，会删表重建）
 sequelize
-  .sync({ alter: false })
+  .sync({ force: true })
   .then(() => console.log("✅ Tables synced"))
   .catch((err) => console.error("❌ Table sync error:", err));
 
