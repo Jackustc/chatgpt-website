@@ -7,6 +7,7 @@ function Chat() {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   // 获取历史对话
   useEffect(() => {
@@ -78,15 +79,57 @@ function Chat() {
     }
   };
 
+  // ✅ 复制功能
+  const handleCopy = () => {
+    if (!sessionId) return;
+    navigator.clipboard.writeText(sessionId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+
   return (
     <div
       style={{
-        width: "100%", // ✅ 占满全屏
+        width: "100%",
         margin: "10px 0",
-        padding: "0 30px", // ✅ 给左右各留 40px 空间
+        padding: "0 30px",
         boxSizing: "border-box",
       }}
     >
+      {/* ✅ Session ID 显示区 */}
+      {sessionId && (
+        <div
+          style={{
+            background: "#f1f5f9",
+            padding: "10px 14px",
+            borderRadius: "6px",
+            marginBottom: "15px",
+            fontSize: "14px",
+            color: "#334155",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <span>
+            🎟 <strong>Session ID:</strong> {sessionId}
+          </span>
+          <button
+            onClick={handleCopy}
+            style={{
+              background: "#e2e8f0",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              fontSize: "12px",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {copied ? "✅ Copied" : "📋 Copy"}
+          </button>
+        </div>
+      )}
+
       <form onSubmit={handleSend} style={{ textAlign: "left" }}>
         <label
           htmlFor="prompt"
@@ -102,14 +145,12 @@ function Chat() {
           placeholder="Ask anything..."
           required
           style={{
-            width: "100%", // ✅ 永远占满容器
-            minHeight: "150px", // ✅ 高度更明显
+            width: "100%",
+            minHeight: "150px",
             fontSize: "1rem",
             padding: "10px",
             marginBottom: "20px",
-            // border: "1px solid #ccc",
-            // borderRadius: "4px",
-            boxSizing: "border-box", // ✅ 防止 padding 挤压
+            boxSizing: "border-box",
           }}
         />
 
@@ -120,7 +161,6 @@ function Chat() {
             color: "white",
             padding: "10px 20px",
             border: "none",
-            // borderRadius: "4px",
             cursor: "pointer",
             fontSize: "1rem",
           }}
@@ -128,15 +168,15 @@ function Chat() {
           Submit
         </button>
       </form>
+
       {loading && <p>🤖 Bot is typing...</p>}
+
       <div style={{ marginTop: "20px" }}>
         {Array.isArray(conversations) &&
           conversations.map((c, index) => (
             <div
               key={`${c.sessionId || "temp"}-${c.id || index}`}
               style={{
-                // border: "1px solid #ddd",
-                // borderRadius: "6px",
                 padding: "10px",
                 marginBottom: "10px",
               }}
