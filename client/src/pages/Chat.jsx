@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 function Chat() {
   const [prompt, setPrompt] = useState("");
@@ -142,9 +144,19 @@ function Chat() {
               <p>
                 <strong>You:</strong> {c.prompt}
               </p>
-              <p>
-                <strong>Bot:</strong> {c.response}
-              </p>
+              <div
+                style={{
+                  marginTop: "8px",
+                  padding: "10px",
+                  background: "#f9f9f9",
+                  borderRadius: "4px",
+                }}
+              >
+                <strong>Bot:</strong>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {c.response}
+                </ReactMarkdown>
+              </div>
             </div>
           ))}
       </div>

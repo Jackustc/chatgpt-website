@@ -1,0 +1,6 @@
+.response-scroll {
+  max-width: 500px; /* ✅ 控制宽度，不超过表格 */
+  overflow-x: auto; /* ✅ 横向滚动 */
+  white-space: nowrap; /* ✅ 不换行，强制横向滚动 */
+  padding-bottom: 4px; /* 给滚动条腾出一点空间 */
+}
