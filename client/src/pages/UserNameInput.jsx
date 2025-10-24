@@ -6,7 +6,7 @@ export default function UserNameInput() {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    if (!username.trim()) return alert("请输入用户名");
+    if (!username.trim()) return alert("Please enter your username!");
     navigate(`/chat?username=${encodeURIComponent(username.trim())}`);
   };
 
@@ -32,10 +32,10 @@ export default function UserNameInput() {
       >
         <h2 style={{ marginBottom: "20px" }}>👋 Welcome to use Chat APP</h2>
 
-        <label style={{ display: "block", textAlign: "left" }}>用户</label>
+        <label style={{ display: "block", textAlign: "left" }}>Username</label>
         <input
           type="text"
-          placeholder="用户名"
+          placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           style={{
