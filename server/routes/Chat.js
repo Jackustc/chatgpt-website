@@ -141,12 +141,13 @@ router.get("/conversation/all", authMiddleware, async (req, res) => {
     const formatted = conversations.map((c) => ({
       id: c.id,
       sessionId: c.sessionId,
+      username: c.username || (c.User ? c.User.username : "Visitor"),
       prompt: c.prompt,
       response: c.response,
       createdAt: c.createdAt,
-      user: c.User
-        ? { username: c.User.username, email: c.User.email }
-        : { username: "Visitor", email: null },
+      // user: c.User
+      //   ? { username: c.User.username, email: c.User.email }
+      //   : { username: "Visitor", email: null },
     }));
 
     res.json(formatted);
@@ -171,10 +172,7 @@ router.get("/conversation/all/csv", authMiddleware, async (req, res) => {
           attributes: ["username", "email"],
         },
       ],
-      order: [
-        ["sessionId", "ASC"],
-        ["createdAt", "ASC"], // ✅ 按 session + 时间排序
-      ],
+      order: [["createdAt", "DESC"]],
     });
 
     // 将相同 session 分组，加上视觉分隔
@@ -198,7 +196,7 @@ router.get("/conversation/all/csv", authMiddleware, async (req, res) => {
       formatted.push({
         id: c.id,
         sessionId: c.sessionId.slice(0, 8), // ✅ 更短
-        username: c.User ? c.User.username : "Visitor",
+        username: c.username || (c.User ? c.User.username : "Visitor"),
         email: c.User ? c.User.email : "",
         prompt: c.prompt,
         response: c.response,

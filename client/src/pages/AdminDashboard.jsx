@@ -98,7 +98,8 @@ function AdminDashboard() {
               <tr key={c.id}>
                 <td>{c.id}</td>
                 <td>{c.sessionId.slice(0, 8)}</td>
-                <td>{c.user ? c.user.username : c.username || "Visitor"}</td>
+
+                <td>{c.username}</td>
                 <td>{c.prompt}</td>
                 <td
                   style={{
