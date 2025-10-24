@@ -17,7 +17,7 @@ const openai = new OpenAI({
 // 保存对话并调用 ChatGPT
 router.post("/conversation", async (req, res) => {
   try {
-    const { prompt, sessionId: clientSessionId } = req.body;
+    const { prompt, sessionId: clientSessionId, username } = req.body;
     let userId = null;
 
     // 解析 token（可选）
@@ -51,9 +51,17 @@ router.post("/conversation", async (req, res) => {
     // 存数据库（无论是否登录，均写入 sessionId）
     console.log("🧩 Saving conversation with sessionId:", sessionId);
 
+    // ✅ 如果登录了，用真实用户名覆盖
+    let finalUsername = username;
+    if (userId) {
+      const user = await require("../models/User").findByPk(userId);
+      if (user?.username) finalUsername = user.username;
+    }
+
     const newConv = await Conversation.create({
       userId,
       sessionId,
+      username: finalUsername,
       prompt,
       response,
     });

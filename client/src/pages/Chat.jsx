@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -8,6 +9,22 @@ function Chat() {
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState(null);
   const [copied, setCopied] = useState(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const qs = new URLSearchParams(location.search);
+  const initialName = qs.get("username") || ""; // 来自 /chat?username=xxx
+
+  const [name, setName] = useState(initialName); // 当前用户名（可被编辑）
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDraft, setEditDraft] = useState(initialName);
+  const [locked, setLocked] = useState(false); // 首次发消息后锁定
+
+  // 没用户名就回到输入页（保持你原有流程）
+  useEffect(() => {
+    if (!initialName) navigate("/");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialName]);
 
   // 获取历史对话
   useEffect(() => {
@@ -47,6 +64,9 @@ function Chat() {
 
     try {
       setLoading(true);
+      // ✅ 首次发送后立即锁定用户名
+      if (!locked) setLocked(true);
+
       const headers = token
         ? {
             "Content-Type": "application/json",
@@ -59,7 +79,7 @@ function Chat() {
         {
           method: "POST",
           headers,
-          body: JSON.stringify({ prompt, sessionId }),
+          body: JSON.stringify({ prompt, sessionId, username: name }),
         }
       );
 
@@ -87,6 +107,30 @@ function Chat() {
     setTimeout(() => setCopied(false), 1200);
   };
 
+  // 🔹 内联编辑逻辑
+  const onEditClick = () => {
+    if (locked) return; // 已锁定禁止编辑
+    setEditDraft(name);
+    setIsEditing(true);
+  };
+
+  const onSaveName = () => {
+    const newName = editDraft.trim();
+    if (!newName) return alert("用户名不能为空");
+    setName(newName);
+    setIsEditing(false);
+
+    // 可选：更新 URL 上的 username，避免刷新后看到旧值
+    const q = new URLSearchParams(location.search);
+    q.set("username", newName);
+    navigate(`/chat?${q.toString()}`, { replace: true });
+  };
+
+  const onCancelEdit = () => {
+    setIsEditing(false);
+    setEditDraft(name);
+  };
+
   return (
     <div
       style={{
@@ -96,8 +140,104 @@ function Chat() {
         boxSizing: "border-box",
       }}
     >
+      {/* 顶部用户名区（仅在未开始聊天时显示提示） */}
+      {!locked && (
+        <div
+          style={{
+            background: "#f1f5f9",
+            padding: "10px 14px",
+            borderRadius: "6px",
+            marginBottom: "15px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          {!isEditing ? (
+            <>
+              <span>
+                👋 Hello, <strong>{name}</strong>
+                <span
+                  style={{
+                    color: "#2563eb",
+                    marginLeft: "8px",
+                    fontWeight: 500,
+                  }}
+                >
+                  ✨ Before start, you can modify conversation settings
+                </span>
+              </span>
+              <button
+                onClick={onEditClick}
+                style={{
+                  background: "#2563eb",
+                  color: "white",
+                  border: "none",
+                  padding: "6px 12px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                ✏️ Edit
+              </button>
+            </>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                flex: 1,
+              }}
+            >
+              <input
+                autoFocus
+                value={editDraft}
+                onChange={(e) => setEditDraft(e.target.value)}
+                placeholder="输入新的用户名"
+                style={{
+                  flex: 1,
+                  minWidth: "240px",
+                  padding: "8px 10px",
+                  borderRadius: "6px",
+                  border: "1px solid #cbd5e1",
+                  background: "#fff",
+                }}
+              />
+              <button
+                onClick={onSaveName}
+                style={{
+                  background: "#10b981",
+                  color: "white",
+                  border: "none",
+                  padding: "6px 12px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                💾 Save
+              </button>
+              <button
+                onClick={onCancelEdit}
+                style={{
+                  background: "#e2e8f0",
+                  border: "none",
+                  padding: "6px 12px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                ✖ Cancel
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ✅ Session ID 显示区 */}
-      {sessionId && (
+      {/* {sessionId && (
         <div
           style={{
             background: "#f1f5f9",
@@ -128,7 +268,7 @@ function Chat() {
             {copied ? "✅ Copied" : "📋 Copy"}
           </button>
         </div>
-      )}
+      )} */}
 
       <form onSubmit={handleSend} style={{ textAlign: "left" }}>
         <label
