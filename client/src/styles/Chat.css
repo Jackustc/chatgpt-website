@@ -1,0 +1,50 @@
+/* 🎟 Session ID Banner */
+.session-banner {
+  background: #f1f5f9;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copy-btn {
+  background: #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  background: #cbd5e1;
+}
+
+.copy-hint {
+  color: #16a34a;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+/* 💬 Chat Container */
+.chat-container {
+  width: 100%;
+  padding: 0 30px;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+
+/* 🧾 Response Scrollable Markdown */
+.response-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  margin-top: 8px;
+}

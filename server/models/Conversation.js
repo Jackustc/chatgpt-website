@@ -11,6 +11,10 @@ const Conversation = sequelize.define(
       allowNull: false, // ✅ 保持必须
       defaultValue: () => uuidv4(), // ✅ Sequelize 自动生成
     },
+    username: {
+      type: DataTypes.STRING(100),
+      allowNull: true, // ✅ 支持匿名用户
+    },
     prompt: { type: DataTypes.TEXT, allowNull: false },
     response: { type: DataTypes.TEXT, allowNull: false },
   },

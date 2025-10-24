@@ -5,6 +5,7 @@ import Chat from "./pages/Chat";
 import NavBar from "./components/NavBar"; // ✅ 引入新组件
 import AdminDashboard from "./pages/AdminDashboard";
 import { useState } from "react";
+import UserNameInput from "./pages/UserNameInput";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -15,7 +16,8 @@ function App() {
         <NavBar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />{" "}
         {/* ✅ 传递状态 */}
         <Routes>
-          <Route path="/" element={<Chat />} />
+          <Route path="/" element={<UserNameInput />} />
+          <Route path="/chat" element={<Chat />} />
           <Route
             path="/login"
             element={<Login setIsLoggedIn={setIsLoggedIn} />} // ✅ 传递更新函数

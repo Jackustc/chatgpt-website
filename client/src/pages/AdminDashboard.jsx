@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import "../styles/AdminDashboard.css";
 
 function AdminDashboard() {
   const [conversations, setConversations] = useState([]);
@@ -97,7 +100,22 @@ function AdminDashboard() {
                 <td>{c.sessionId.slice(0, 8)}</td>
                 <td>{c.user.username}</td>
                 <td>{c.prompt}</td>
-                <td>{c.response}</td>
+                <td
+                  style={{
+                    maxWidth: "300px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div className="response-scroll">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {c.response}
+                    </ReactMarkdown>
+                  </div>
+                </td>
+
                 <td>{new Date(c.createdAt).toLocaleString()}</td>
               </tr>
             );
